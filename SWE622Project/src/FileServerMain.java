@@ -34,11 +34,8 @@ public class FileServerMain {
 		
 	}
 	
-	public static void onUploadComplete(){
-		
-	}
-	
-	public static void onDownloadComplete(){
+	public static void onUploadComplete(String filename){
+		//TODO: send file to the other servers.
 		
 	}
 

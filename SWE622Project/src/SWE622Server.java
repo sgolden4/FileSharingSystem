@@ -50,6 +50,8 @@ public class SWE622Server implements Runnable {
 				 		open file if it does exist and we are resuming
 				 4. send "receiving\n" if everything is good, otherwise send "failure\n" and return. 
 				 5. get data from client
+				 6. if file finished, call FileServerMain.onUploadComplete(filename) so it can
+				  	start sending the file to the other servers.
 		*/
 	}
 
@@ -59,7 +61,7 @@ public class SWE622Server implements Runnable {
 					if it does not and return
 				3. open file
 				4. send file
-		
+
 		*/
 	}
 
