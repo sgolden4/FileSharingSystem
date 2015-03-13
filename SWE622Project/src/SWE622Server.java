@@ -68,6 +68,7 @@ public class SWE622Server implements Runnable {
 		
 		BufferedOutputStream tofile = null;
 		byte[] packet = new byte[PACKET_SIZE + 1];
+		boolean resuming = false;
 		
 		if(instringparts.length < 3){
 			pw.println("failure : need more information");
@@ -78,28 +79,41 @@ public class SWE622Server implements Runnable {
 		int filelength = Integer.parseUnsignedInt(instringparts[2]);
 		
 		//TODO: for security, check/sanitize filename
+
+		if(instringparts.length > 3 && "resume".equals(instringparts[3])){
+			resuming = true;
+		}
 		
 		File infile = new File(filepath+filename);
 		long myfilelength = 0;
 		if(infile.exists()){
 			myfilelength = infile.length();
+			if(resuming)
+				pw.println(myfilelength);
+			else{
+				try {
+					infile.delete();
+					infile.createNewFile();
+				} catch (IOException e) {
+					pw.println("error creating file");
+					return;
+				}
+			}
+				
 		} else {
 			try {
 				infile.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				pw.println("error creating file");
 				return;
 			}
 		}
 		
-		if(instringparts.length > 3 && "resume".equals(instringparts[3])){
-			pw.println(myfilelength);
-		}
+
 		
 		try {
 			InputStream instream = connection.getInputStream();
-			tofile = new BufferedOutputStream(new FileOutputStream(infile, true));
+			tofile = new BufferedOutputStream(new FileOutputStream(infile, resuming));
 			int totalbytes = (int) myfilelength;
 			int bytesread = 0;
 			while(totalbytes < filelength){
