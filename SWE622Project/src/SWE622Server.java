@@ -1,25 +1,38 @@
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 
 public class SWE622Server implements Runnable {
+    public final static int PACKET_SIZE = 10000000;
+	
 	Socket connection;
 	ServerSocket mysocket;
 	BufferedReader input;
 	OutputStream output;
+	PrintWriter pw;
+	String filepath;
 	
-	SWE622Server(ServerSocket mysocket, Socket connection){
+	SWE622Server(ServerSocket mysocket, Socket connection, String filepath){
 		this.connection = connection;
 		this.mysocket = mysocket;
+		this.filepath = filepath;
 	}
 
 	public void run() {
 		try {
 			input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			output = connection.getOutputStream();
+			pw = new PrintWriter(output, true);
 			String instring = input.readLine();
 			String[] instringparts = instring.split(" ");
 			switch(instringparts[0]){
@@ -39,8 +52,7 @@ public class SWE622Server implements Runnable {
 	}
 
 	private void verify() {
-		//TODO: reply to verify that this is the correct server type
-		
+		pw.println("42");
 	}
 
 	private void receiveFile(String[] instringparts) {
@@ -53,6 +65,71 @@ public class SWE622Server implements Runnable {
 				 6. if file finished, call FileServerMain.onUploadComplete(filename) so it can
 				  	start sending the file to the other servers.
 		*/
+		
+		BufferedOutputStream tofile = null;
+		byte[] packet = new byte[PACKET_SIZE + 1];
+		
+		if(instringparts.length < 3){
+			pw.println("failure : need more information");
+			return;
+		}
+		
+		String filename = instringparts[1];
+		int filelength = Integer.parseUnsignedInt(instringparts[2]);
+		
+		//TODO: for security, check/sanitize filename
+		
+		File infile = new File(filepath+filename);
+		long myfilelength = 0;
+		if(infile.exists()){
+			myfilelength = infile.length();
+		} else {
+			try {
+				infile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				pw.println("error creating file");
+				return;
+			}
+		}
+		
+		if(instringparts.length > 3 && "resume".equals(instringparts[3])){
+			pw.println(myfilelength);
+		}
+		
+		try {
+			InputStream instream = connection.getInputStream();
+			tofile = new BufferedOutputStream(new FileOutputStream(infile, true));
+			int totalbytes = (int) myfilelength;
+			int bytesread = 0;
+			while(totalbytes < filelength){
+				bytesread = instream.read(packet, 0, PACKET_SIZE);
+				if (bytesread != -1) {
+                    totalbytes += bytesread;
+                    tofile.write(packet, 0 , bytesread);
+                } 
+                tofile.flush();
+			}
+			if(instream != null) instream.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+        //Close connections
+        try {
+            if(pw != null)  pw.close();
+            if(input != null)  input.close();
+            if(output != null)  output.close();
+            if(tofile != null)  tofile.close();
+            if(connection != null)  connection.close();
+        } catch (IOException e) {
+            System.out.println("Unable to close connections");
+            return;
+        }
 	}
 
 	private void sendFile(String[] instringparts) {
@@ -61,7 +138,6 @@ public class SWE622Server implements Runnable {
 					if it does not and return
 				3. open file
 				4. send file
-
 		*/
 	}
 

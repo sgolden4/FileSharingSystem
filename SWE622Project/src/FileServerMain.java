@@ -1,4 +1,7 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -9,6 +12,7 @@ import java.util.List;
 public class FileServerMain {
 	private static final String SERVER_ADDRESS = "127.0.0.1";
 	private static final int STARTING_PORT = 3210;
+	private static final String FILEPATH = "c:\\temp\\server";
 	private static int myport;
 	private static ServerSocket mysocket;
 	private static List<Socket> servers;
@@ -24,7 +28,7 @@ public class FileServerMain {
 		while(serveractive){
 			try{
 				Socket socket = mysocket.accept();
-				SWE622Server server = new SWE622Server(mysocket, socket);
+				SWE622Server server = new SWE622Server(mysocket, socket, FILEPATH+myport+"\\");
 				Thread thread = new Thread(server);
 				thread.start();
 			} catch(IOException e){
@@ -35,12 +39,12 @@ public class FileServerMain {
 	}
 	
 	public static void onUploadComplete(String filename){
-		//TODO: send file to the other servers.
+		//TODO: 
 		
 	}
 
 	private static void findOtherServers() {
-		// TODO Auto-generated method stub
+
 		myport = STARTING_PORT;
 		if(servers == null)
 			servers = new ArrayList<Socket>();
@@ -58,8 +62,17 @@ public class FileServerMain {
 	}
 	
 	private static boolean verifyServer(Socket socket) {
-		// TODO Auto-generated method stub
-		return false;
+
+		try {
+			BufferedReader input = new BufferedReader(new InputStreamReader(
+	                socket.getInputStream()));
+			PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
+			pw.println("verify");
+			String check = input.readLine();
+			return "42".equals(check);
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	public static void main(String [] args){
