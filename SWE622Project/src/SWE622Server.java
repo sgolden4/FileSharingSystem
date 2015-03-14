@@ -138,6 +138,7 @@ public class SWE622Server implements Runnable {
 			}
 			if(instream != null) instream.close();
             if(tofile != null)  tofile.close();
+            FileServerMain.onUploadComplete(filepath+filename);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -149,12 +150,7 @@ public class SWE622Server implements Runnable {
 	}
 
 	private void sendFile(String[] instringparts) {
-		/* TODO 1. check string for whether we are resuming or not
-				2. check if file exists, reply "sending\n" if it does, reply "failure\n" 
-					if it does not and return
-				3. open file
-				4. send file
-		*/
+
 		if(instringparts.length < 2){
 			pw.println("failure : need more information");
 			return;
