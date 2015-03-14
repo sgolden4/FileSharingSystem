@@ -1,6 +1,8 @@
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,6 +50,16 @@ public class SWE622Server implements Runnable {
 		} catch (IOException e) {
 
 		}
+        //Close connections
+        try {
+            if(pw != null)  pw.close();
+            if(input != null)  input.close();
+            if(output != null)  output.close();
+            if(connection != null)  connection.close();
+        } catch (IOException e) {
+            System.out.println("Unable to close connections");
+            return;
+        }
 		
 	}
 
@@ -105,7 +117,7 @@ public class SWE622Server implements Runnable {
 				infile.createNewFile();
 			} catch (IOException e) {
 				pw.println("error creating file");
-				return;
+	            return;
 			}
 		}
 		
@@ -125,6 +137,7 @@ public class SWE622Server implements Runnable {
                 tofile.flush();
 			}
 			if(instream != null) instream.close();
+            if(tofile != null)  tofile.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -133,17 +146,6 @@ public class SWE622Server implements Runnable {
 			e.printStackTrace();
 		}
 		
-        //Close connections
-        try {
-            if(pw != null)  pw.close();
-            if(input != null)  input.close();
-            if(output != null)  output.close();
-            if(tofile != null)  tofile.close();
-            if(connection != null)  connection.close();
-        } catch (IOException e) {
-            System.out.println("Unable to close connections");
-            return;
-        }
 	}
 
 	private void sendFile(String[] instringparts) {
@@ -153,6 +155,47 @@ public class SWE622Server implements Runnable {
 				3. open file
 				4. send file
 		*/
+		if(instringparts.length < 2){
+			pw.println("failure : need more information");
+			return;
+		}
+		
+		String filename = instringparts[1];
+		//boolean resuming = false;
+		long startposition = 0;
+		if(instringparts.length > 3 && "resume".equals(instringparts[2])){
+			startposition = Long.parseLong(instringparts[3]);
+		}
+		
+		File file = new File(filepath + filename);
+		if(!file.exists()){
+			pw.println("failure : file does not exist");
+			return;
+		} else {
+			pw.println("sending");
+			long length = file.length() - startposition;
+			byte[] packet = new byte[PACKET_SIZE];
+			try {
+				BufferedInputStream instream = new BufferedInputStream(new FileInputStream(file));
+				instream.skip(startposition);
+				long remaining = length;
+				while (remaining > 0) {
+                    if (remaining < PACKET_SIZE) {
+                        packet = new byte[(int) remaining];
+                    }
+                    int bytesread = instream.read(packet);
+                    output.write(packet);
+                    remaining -= bytesread;
+                }
+				instream.close();
+			} catch (FileNotFoundException e) {
+
+			} catch (IOException e) {
+
+			}
+			
+		}
+		
 	}
 
 }
