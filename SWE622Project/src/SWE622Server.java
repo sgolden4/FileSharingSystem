@@ -90,7 +90,7 @@ public class SWE622Server implements Runnable {
 		boolean resuming = false;
 		
 		if(instringparts.length < 3){
-			pw.println("failure : need more information");
+			pw.println("  Failure : Need more information");
 			return;
 		}
 		
@@ -114,7 +114,7 @@ public class SWE622Server implements Runnable {
 					infile.delete();
 					infile.createNewFile();
 				} catch (IOException e) {
-					pw.println("error creating file");
+					pw.println("  Error creating file");
 					return;
 				}
 			}
@@ -123,7 +123,7 @@ public class SWE622Server implements Runnable {
 			try {
 				infile.createNewFile();
 			} catch (IOException e) {
-				pw.println("error creating file");
+				pw.println("  Error creating file");
 	            return;
 			}
 		}
@@ -159,7 +159,7 @@ public class SWE622Server implements Runnable {
 	private void sendFile(String[] instringparts) {
 
 		if(instringparts.length < 2){
-			pw.println("Failure : Need more information");
+			pw.println("  Failure : Need more information");
 			return;
 		}
 		
@@ -172,7 +172,7 @@ public class SWE622Server implements Runnable {
 		
 		File file = new File(filepath + filename);
 		if(!file.exists()){
-			pw.println("Failure : File does not exist");
+			pw.println("  Failure : File does not exist");
 			return;
 		} else {
 			pw.println("sending");
