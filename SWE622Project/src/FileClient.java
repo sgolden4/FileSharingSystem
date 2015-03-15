@@ -10,6 +10,7 @@ public class FileClient {
 
     public final static int[] SOCKET_PORT = {3210,3211,3212};
     public final static String[] SERVER = {"1","2","3"};  //Server names
+    public final static String SERVER_ADDRESS = "127.0.0.1";
     public final static String FILE_TO_RECEIVED = "c:/Users/Steven/Documents/tempClient/";  
     public final static int PACKET_SIZE = 10000000;
 
@@ -39,7 +40,6 @@ public class FileClient {
                 }
             }
 
-
         }
         finally {
             keyboard.close();
@@ -63,7 +63,7 @@ public class FileClient {
         Socket[] sock = new Socket[3];
         for (int i = 0; i < SOCKET_PORT.length; i++ ) {
             try {
-                sock[i] = new Socket(SERVER[i], SOCKET_PORT[i]);
+                sock[i] = new Socket(SERVER_ADDRESS, SOCKET_PORT[i]);
                 System.out.printf("  Connecting to %s...\n",SERVER[i]); 
             } catch (SocketException se) {
                 System.out.printf("  Cannot Connect to %s\n", SERVER[i]);
@@ -109,11 +109,13 @@ public class FileClient {
                 break;
             }
         }
+        
         if (socket == -1) {
             System.out.println("  Server with that name does not exist");
             return;
         }
 
+        servname = SERVER_ADDRESS;
 
         BufferedOutputStream toFile = null;
         BufferedReader inFromServer = null;
@@ -219,6 +221,8 @@ public class FileClient {
             return;
         }
 
+        servname = SERVER_ADDRESS;
+        
         File myFile = new File (FILE_TO_RECEIVED + filename);
         if (!myFile.exists()) {
             System.out.println("  File with that name cannot be found.");
@@ -317,6 +321,8 @@ public class FileClient {
             System.out.println("  Server with that name does not exist");
             return;
         }
+        
+        servname = SERVER_ADDRESS;
         
         Long bytesDownloaded = ResumeDLList.get(filename);
         
@@ -430,6 +436,7 @@ public class FileClient {
             return;
         }
         
+        servname = SERVER_ADDRESS;
 
         File myFile = new File (FILE_TO_RECEIVED + filename);
         if (!myFile.exists()) {

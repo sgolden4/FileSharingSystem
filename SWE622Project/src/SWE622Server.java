@@ -36,6 +36,10 @@ public class SWE622Server implements Runnable {
 			output = connection.getOutputStream();
 			pw = new PrintWriter(output, true);
 			String instring = input.readLine();
+			if(instring == null){
+				closeConnections();
+				return;
+			}
 			String[] instringparts = instring.split(" ");
 			switch(instringparts[0]){
 				case "dl": sendFile(instringparts);
@@ -51,6 +55,10 @@ public class SWE622Server implements Runnable {
 
 		}
         //Close connections
+		closeConnections();
+	}
+	
+	private void closeConnections(){
         try {
             if(pw != null)  pw.close();
             if(input != null)  input.close();
@@ -59,8 +67,7 @@ public class SWE622Server implements Runnable {
         } catch (IOException e) {
             System.out.println("Unable to close connections");
             return;
-        }
-		
+        }		
 	}
 
 	private void verify() {
