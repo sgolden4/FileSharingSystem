@@ -159,7 +159,7 @@ public class SWE622Server implements Runnable {
 	private void sendFile(String[] instringparts) {
 
 		if(instringparts.length < 2){
-			pw.println("failure : need more information");
+			pw.println("Failure : Need more information");
 			return;
 		}
 		
@@ -172,11 +172,12 @@ public class SWE622Server implements Runnable {
 		
 		File file = new File(filepath + filename);
 		if(!file.exists()){
-			pw.println("failure : file does not exist");
+			pw.println("Failure : File does not exist");
 			return;
 		} else {
 			pw.println("sending");
 			long length = file.length() - startposition;
+			pw.println(length);
 			byte[] packet = new byte[PACKET_SIZE];
 			try {
 				BufferedInputStream instream = new BufferedInputStream(new FileInputStream(file));

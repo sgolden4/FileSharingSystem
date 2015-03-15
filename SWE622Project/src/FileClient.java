@@ -11,7 +11,7 @@ public class FileClient {
     public final static int[] SOCKET_PORT = {3210,3211,3212};
     public final static String[] SERVER = {"1","2","3"};  //Server names
     public final static String SERVER_ADDRESS = "127.0.0.1";
-    public final static String FILE_TO_RECEIVED = "c:/Users/Steven/Documents/tempClient/";  
+    public final static String FILE_TO_RECEIVED = "c:/temp/client/";  
     public final static int PACKET_SIZE = 10000000;
 
     public static boolean EXIT = false; 
@@ -127,7 +127,7 @@ public class FileClient {
         int bytesRead = 0;
         int current = 0;
         byte [] packet  = new byte [PACKET_SIZE + 1];
-        String filesize;
+        String filesize, response;
         long totalBytes = 0;
 
         //Attempt Connection with selected Server
@@ -156,8 +156,15 @@ public class FileClient {
             try {
                 outToServer.writeBytes("dl " + filename + '\n');
 
+                response = inFromServer.readLine();
+                
+                if (!response.equals("sending")) {
+                    System.out.println(response);
+                    break;
+                }
+                
                 filesize = inFromServer.readLine();
-
+                
                 long length = Long.parseLong(filesize.replaceAll("\n", ""));
 
                 System.out.println("File size: " + Long.parseLong(filesize.replaceAll("\n", "")));
