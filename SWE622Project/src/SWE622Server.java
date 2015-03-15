@@ -44,7 +44,7 @@ public class SWE622Server implements Runnable {
 					break;
 				case "verify": verify();
 					break;
-				
+				case "server": FileServerMain.addServer(connection);
 			}
 			
 		} catch (IOException e) {

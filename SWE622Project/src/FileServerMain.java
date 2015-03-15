@@ -22,18 +22,30 @@ public class FileServerMain {
 	private static void startServer() {
 		try{
 			mysocket = new ServerSocket(myport);
+			System.out.println("Server started on port: "+myport);
 		} catch(IOException e){
-			
+			System.out.println("unable to start server on port "+myport+", closing server.");
+			e.printStackTrace();
+			return;
 		}
 		while(serveractive){
 			try{
 				Socket socket = mysocket.accept();
+				System.out.println("client connected from "
+						+socket.getInetAddress().toString()+":"+socket.getPort());
 				SWE622Server server = new SWE622Server(mysocket, socket, FILEPATH+myport+"\\");
 				Thread thread = new Thread(server);
 				thread.start();
 			} catch(IOException e){
 				
 			}
+			if(mysocket != null)
+				try {
+					mysocket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 		}
 		
 	}
@@ -56,8 +68,10 @@ public class FileServerMain {
 		while(!openportfound){
 			try{
 				Socket socket = new Socket(SERVER_ADDRESS, myport);
-				if(verifyServer(socket))
+				if(verifyServer(socket)){
 					servers.add(socket);
+					System.out.println("server found at port: "+myport+", adding to server list");
+				}
 				myport++;
 			} catch(IOException e){
 				openportfound = true;
@@ -66,19 +80,27 @@ public class FileServerMain {
 	}
 	
 	private static boolean verifyServer(Socket socket) {
-
+		boolean verified = false;
 		try {
 			BufferedReader input = new BufferedReader(new InputStreamReader(
 	                socket.getInputStream()));
 			PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
 			pw.println("verify");
 			String check = input.readLine();
-			return "42".equals(check);
+			verified = "42".equals(check);
+			if(verified)
+				pw.println("server");
+			return verified;
 		} catch (IOException e) {
 			return false;
 		}
 	}
 
+	public static void addServer(Socket connection) {
+		servers.add(connection);
+		
+	}
+	
 	public static void main(String [] args){
 		findOtherServers();
 		startServer();
