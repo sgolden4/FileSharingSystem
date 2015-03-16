@@ -66,9 +66,11 @@ public class FileDistributor implements Runnable {
             				long resumepoint = Long.parseUnsignedLong(instringparts[1]);
             				remaining = length - resumepoint;
             				closeConnections();
+            				instream.close();
+            				instream = new BufferedInputStream(new FileInputStream(file));
+            				instream.skip(remaining);
             				openConnection();
             				pw.println("ulserve "+filename+" "+length+" resume");
-            				
             			}
                     }
                 }
