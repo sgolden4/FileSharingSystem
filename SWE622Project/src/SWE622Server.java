@@ -152,7 +152,7 @@ public class SWE622Server implements Runnable {
                 tofile.flush();
                 tofile.close();
             }
-            System.out.println("File "+filename+" has finished with "+bytesread
+            System.out.println("File "+filename+" has finished with "+totalbytes
             		+" bytes received out of "+filelength+".");
             if(distribute)
             	FileServerMain.onUploadComplete(filepath, filename);
