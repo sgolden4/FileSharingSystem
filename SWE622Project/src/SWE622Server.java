@@ -135,22 +135,26 @@ public class SWE622Server implements Runnable {
 			int buffersize = connection.getReceiveBufferSize();
 			byte[] packet = new byte[buffersize];
 			while(totalbytes < filelength){
-				System.out.println("about to read from instream, buffersize = "+buffersize);
+				//System.out.println("about to read from instream, buffersize = "+buffersize);
 				bytesread = instream.read(packet, 0, buffersize);
-				System.out.println("just got "+bytesread+" bytes from instream.");
+				//System.out.println("just got "+bytesread+" bytes from instream.");
 				if (bytesread != -1) {
                     totalbytes += bytesread;
                     tofile.write(packet, 0 , bytesread);
-                    System.out.println("File "+filename+": "+bytesread
+                    System.out.println("File "+filename+": "+totalbytes
                     		+" bytes received out of "+filelength+".");
                 } else {
-                	if(totalbytes < filelength)
+                	if(totalbytes < filelength){
                 		System.out.println("failed to receive file, only received "
                 				+totalbytes+" of "+filelength);
-                	distribute = false;
-                	break;
+	                	distribute = false;
+	                	pw.println("received "+totalbytes);
+	                	break;
+                	}
                 }
 			}
+			if(totalbytes == filelength)
+				pw.println("success");
 			if(instream != null) instream.close();
             if(tofile != null){ 
                 tofile.flush();

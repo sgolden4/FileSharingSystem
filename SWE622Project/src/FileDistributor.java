@@ -1,32 +1,34 @@
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 
 public class FileDistributor implements Runnable {
 	private static final String SERVER_ADDRESS = "127.0.0.1";
 	String filename, filepath;
+	int serverport;
 	Socket server;
+	
+	int buffersize;
+	byte[] packet;
+	OutputStream output;
+	BufferedReader br;
+	PrintWriter pw;
 	
 	
 	FileDistributor(String filepath, String filename, int serverport){
-		try {
-			this.server = new Socket(SERVER_ADDRESS, serverport);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		};
 		this.filename = filename;
 		this.filepath = filepath;
+		this.serverport = serverport;
 	}
 
 	@Override
@@ -37,14 +39,16 @@ public class FileDistributor implements Runnable {
 			return;
 		} else {
 			long length = file.length();
-			System.out.println("Attempting to send "+filename+" to server "+server.getPort()
-					+".  Length = "+length);
 			try {
-				int buffersize = server.getReceiveBufferSize();
-				byte[] packet = new byte[buffersize];
 				BufferedInputStream instream = new BufferedInputStream(new FileInputStream(file));
-				OutputStream output = server.getOutputStream();
-				PrintWriter pw = new PrintWriter(output, true);
+				if(!openConnection()){
+					System.out.println("error opening connection, distribution halted.");
+					instream.close();
+					closeConnections();
+					return;
+				}
+				System.out.println("Attempting to send "+filename+" to server "+server.getPort()
+						+".  Length = "+length);
 				pw.println("ulserve "+filename+" "+length);
 				long remaining = length;
 				while (remaining > 0) {
@@ -55,11 +59,22 @@ public class FileDistributor implements Runnable {
                     output.write(packet);
                     remaining -= bytesread;
                     System.out.println("sent "+bytesread+" bytes to server "+server.getPort());
+                    if(remaining == 0){
+            			String instring = br.readLine();
+            			String[] instringparts = instring.split(" ");
+            			if("received".equals(instringparts[0])){
+            				long resumepoint = Long.parseUnsignedLong(instringparts[1]);
+            				remaining = length - resumepoint;
+            				closeConnections();
+            				openConnection();
+            				pw.println("ulserve "+filename+" "+length+" resume");
+            				
+            			}
+                    }
                 }
 				instream.close();
-				output.close();
+				closeConnections();
 				System.out.println("File successfully sent to server.");
-				server.close();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -67,6 +82,32 @@ public class FileDistributor implements Runnable {
 			}
 			
 		}
+	}
+
+	private void closeConnections() throws IOException{
+		if(output != null) output.close();
+		if(server != null) server.close();
+	}
+	
+	private boolean openConnection(){
+
+		try {
+			this.server = new Socket(SERVER_ADDRESS, serverport);
+			buffersize = server.getReceiveBufferSize();
+			packet = new byte[buffersize];
+			output = server.getOutputStream();
+			br = new BufferedReader(new InputStreamReader(server.getInputStream()));
+			pw = new PrintWriter(output, true);
+			return true;
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+
 	}
 
 }
