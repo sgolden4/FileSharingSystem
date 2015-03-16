@@ -148,7 +148,7 @@ public class FileClient {
                 toFile = new BufferedOutputStream(new FileOutputStream(FILE_TO_RECEIVED + filename));
                 outToServer = new DataOutputStream(sock.getOutputStream());
             } catch (IOException e) {
-                System.out.println("Failure to get IO Streams.");
+                System.out.println("  Failure to get IO Streams.");
                 break;
             }
 
@@ -227,8 +227,6 @@ public class FileClient {
             System.out.println("  Server with that name does not exist");
             return;
         }
-
-        servname = SERVER_ADDRESS;
         
         File myFile = new File (FILE_TO_RECEIVED + filename);
         if (!myFile.exists()) {
@@ -247,7 +245,7 @@ public class FileClient {
         
         //Attempt Connection with selected Server
         try {
-            sock = new Socket(servname,socket);
+            sock = new Socket(SERVER_ADDRESS,socket);
         } catch (IOException ioe) {
             System.out.printf("  Cannot Connect to %s\n", servname);
             return;
@@ -277,14 +275,14 @@ public class FileClient {
                         int read = bis.read(b);
                         os.write(b);
                         totalWrite += read;
-                        System.out.println(totalWrite);
                     } else {
                         int read = bis.read(bytearray);
                         os.write(bytearray);
                         totalWrite += read;
-                        System.out.println(totalWrite);
                     }
                 }
+                System.out.println("  File " + FILE_TO_RECEIVED + filename
+                        + " uploaded. Size: " + length);
             } catch (IOException e) {
                 if (totalWrite != 0) {
                     System.out.println("  Error in Uploading file. Can resume upload using command rul");
@@ -494,12 +492,10 @@ public class FileClient {
                         int remaining = (int) (length - totalWrite);
                         byte[] b = new byte[remaining];                      
                         int read = bis.read(b);
-                        System.out.println(totalWrite);
                         os.write(b);
                         totalWrite += read;
                     } else {
                         int read = bis.read(bytearray);
-                        System.out.println(totalWrite);
                         os.write(bytearray);
                         totalWrite += read;
                     }
