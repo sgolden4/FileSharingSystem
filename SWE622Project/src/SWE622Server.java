@@ -127,7 +127,7 @@ public class SWE622Server implements Runnable {
 			System.out.println("Receiving file "+filename);
 			InputStream instream = connection.getInputStream();
 			tofile = new BufferedOutputStream(new FileOutputStream(infile, resuming));
-			int totalbytes = (int) myfilelength;
+			long totalbytes = myfilelength;
 			int bytesread = 0;
 			int buffersize = connection.getReceiveBufferSize();
 			byte[] packet = new byte[buffersize];
@@ -136,7 +136,7 @@ public class SWE622Server implements Runnable {
 				if (bytesread != -1) {
                     totalbytes += bytesread;
                     tofile.write(packet, 0 , bytesread);
-                    System.out.println("File "+filename+": "+bytesread
+                    System.out.println("File "+filename+": "+totalbytes
                     		+" bytes received out of "+filelength+".");
                 } 
 			}
@@ -145,7 +145,7 @@ public class SWE622Server implements Runnable {
                 tofile.flush();
                 tofile.close();
             }
-            System.out.println("File "+filename+"has finished with "+bytesread
+            System.out.println("File "+filename+" has finished with "+totalbytes
             		+" bytes received out of "+filelength+".");
             FileServerMain.onUploadComplete(filepath+filename);
 		} catch (FileNotFoundException e) {
