@@ -87,7 +87,7 @@ public class SWE622Server implements Runnable {
 		}
 		
 		String filename = instringparts[1];
-		int filelength = Integer.parseUnsignedInt(instringparts[2]);
+		long filelength = Long.parseLong(instringparts[2]);
 		
 		//TODO: for security, check/sanitize filename
 
@@ -130,7 +130,7 @@ public class SWE622Server implements Runnable {
 			System.out.println("Receiving file "+filename);
 			InputStream instream = connection.getInputStream();
 			tofile = new BufferedOutputStream(new FileOutputStream(infile, resuming));
-			int totalbytes = (int) myfilelength;
+			long totalbytes = myfilelength;
 			int bytesread = 0;
 			int buffersize = connection.getReceiveBufferSize();
 			byte[] packet = new byte[buffersize];
