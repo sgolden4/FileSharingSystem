@@ -22,15 +22,8 @@ public class FileServerMain {
 	
 	
 	private static void startServer() {
-		try{
-			mysocket = new ServerSocket(myport);
-			System.out.println("Server started on port: "+myport);
-			notifyServers();
-		} catch(IOException e){
-			System.out.println("unable to start server on port "+myport+", closing server.");
-			e.printStackTrace();
-			return;
-		}
+		notifyServers();
+		System.out.println("Server ready, now listening for connections...");
 		while(serveractive){
 			try{
 				Socket socket = mysocket.accept();
@@ -105,6 +98,14 @@ public class FileServerMain {
 				if(!openportfound){
 					openportfound = true;
 					myport = portnum;
+					try {
+						mysocket = new ServerSocket(myport);
+						System.out.println("Server started on port: "+myport);
+					} catch (IOException e1) {
+						System.out.println("unable to start server on port "+myport+", closing server.");
+						e1.printStackTrace();
+						System.exit(1);
+					}
 				}
 				portnum++;
 			}
