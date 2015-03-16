@@ -173,7 +173,7 @@ public class FileClient {
                 int buffersize = sock.getReceiveBufferSize();
                 packet = new byte[buffersize];
                 while (totalBytes < length) {
-                    bytesRead = fromServer.read(packet,0, PACKET_SIZE);
+                    bytesRead = fromServer.read(packet,0, buffersize);
                     current = bytesRead;
                     if (current != -1) {
                         totalBytes += current;
@@ -383,7 +383,7 @@ public class FileClient {
                 int buffersize = sock.getReceiveBufferSize();
                 packet = new byte[buffersize];
                 while (totalBytes < length) {
-                    bytesRead = fromServer.read(packet,0, PACKET_SIZE);
+                    bytesRead = fromServer.read(packet,0, buffersize);
                     current = bytesRead;
                     if (current != -1) {
                         totalBytes += current;
