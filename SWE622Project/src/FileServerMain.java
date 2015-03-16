@@ -13,6 +13,7 @@ public class FileServerMain {
 	private static final String SERVER_ADDRESS = "127.0.0.1";
 	private static final int STARTING_PORT = 3210;
 	private static final String FILEPATH = "c:\\temp\\server";
+	private static final int MAX_PORT = 3220;
 	private static int myport;
 	private static ServerSocket mysocket;
 	private static List<Socket> servers;
@@ -70,19 +71,24 @@ public class FileServerMain {
 	private static void findOtherServers() {
 
 		myport = STARTING_PORT;
+		int portnum = myport;
 		if(servers == null)
 			servers = new ArrayList<Socket>();
 		boolean openportfound = false;
-		while(!openportfound){
+		while(portnum <= MAX_PORT){
 			try{
-				Socket socket = new Socket(SERVER_ADDRESS, myport);
+				Socket socket = new Socket(SERVER_ADDRESS, portnum);
 				if(verifyServer(socket)){
 					servers.add(socket);
-					System.out.println("server found at port: "+myport+", adding to server list");
+					System.out.println("server found at port: "+portnum+", adding to server list");
 				}
-				myport++;
+				portnum++;
 			} catch(IOException e){
-				openportfound = true;
+				if(!openportfound){
+					openportfound = true;
+					myport = portnum;
+				}
+				portnum++;
 			}
 		}
 	}

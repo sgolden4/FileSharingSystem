@@ -242,7 +242,7 @@ public class FileClient {
 
 
         long length = myFile.length();
-        byte[] bytearray = new byte[PACKET_SIZE];
+        byte[] bytearray = null;
         long totalWrite = 0;
         
         //Attempt Connection with selected Server
@@ -268,9 +268,10 @@ public class FileClient {
             //Send and Receive Info
             try {
                 outToServer.writeBytes("ul " + filename + ' ' + myFile.length() + '\n');
-
+    			int buffersize = sock.getReceiveBufferSize();
+    			bytearray = new byte[buffersize];
                 while (totalWrite < length) {
-                    if (length - totalWrite < PACKET_SIZE) {
+                    if (length - totalWrite < buffersize) {
                         int remaining = (int) (length - totalWrite);
                         byte[] b = new byte[remaining];
                         int read = bis.read(b);
