@@ -126,7 +126,7 @@ public class FileClient {
 
         int bytesRead = 0;
         int current = 0;
-        byte [] packet  = new byte [PACKET_SIZE + 1];
+        byte [] packet  = null;
         String filesize, response;
         long totalBytes = 0;
 
@@ -170,6 +170,8 @@ public class FileClient {
                 System.out.println("  File size: " + Long.parseLong(filesize.replaceAll("\n", "")));
 
                 totalBytes = 0;
+                int buffersize = sock.getReceiveBufferSize();
+                packet = new byte[buffersize];
                 while (totalBytes < length) {
                     bytesRead = fromServer.read(packet,0, PACKET_SIZE);
                     current = bytesRead;
@@ -340,7 +342,7 @@ public class FileClient {
 
         int bytesRead = 0;
         int current = 0;
-        byte [] packet  = new byte [PACKET_SIZE + 1];
+        byte [] packet  = null;
         String filesize;
         long totalBytes = 0;
 
@@ -378,6 +380,8 @@ public class FileClient {
                 System.out.println("File size: " + length);
 
                 totalBytes = 0;
+                int buffersize = sock.getReceiveBufferSize();
+                packet = new byte[buffersize];
                 while (totalBytes < length) {
                     bytesRead = fromServer.read(packet,0, PACKET_SIZE);
                     current = bytesRead;
@@ -440,8 +444,6 @@ public class FileClient {
             System.out.println("  Server with that name does not exist");
             return;
         }
-        
-        servname = SERVER_ADDRESS;
 
         File myFile = new File (FILE_TO_RECEIVED + filename);
         if (!myFile.exists()) {
@@ -456,14 +458,14 @@ public class FileClient {
 
 
         long length = myFile.length();
-        byte[] bytearray = new byte[PACKET_SIZE];
+        byte[] bytearray = null;
         long totalWrite = 0;
         String offsetString = null;
         Long offset;
         
         //Attempt Connection with selected Server
         try {
-            sock = new Socket(servname,socket);
+            sock = new Socket(SERVER_ADDRESS,socket);
         } catch (IOException ioe) {
             System.out.printf("  Cannot Connect to %s\n", servname);
             return;
@@ -487,8 +489,10 @@ public class FileClient {
                 offsetString = inFromServer.readLine();
                 offset = Long.parseLong(offsetString);
                 bis.skip(offset);
+                int buffersize = sock.getReceiveBufferSize();
+                bytearray = new byte[buffersize];
                 while (totalWrite < (length - offset)) {
-                    if (length - totalWrite < PACKET_SIZE) {
+                    if (length - totalWrite < buffersize) {
                         int remaining = (int) (length - totalWrite);
                         byte[] b = new byte[remaining];                      
                         int read = bis.read(b);
