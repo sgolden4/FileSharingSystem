@@ -370,7 +370,7 @@ public class FileClient {
 
             //Send and Receive Info
             try {
-                outToServer.writeBytes("rdl " + filename + " resume " +
+                outToServer.writeBytes("dl " + filename + " resume " +
                         bytesDownloaded.toString() + '\n');
 
                 filesize = inFromServer.readLine();
