@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class FileServerMain {
 	private static final int MAX_PORT = 3220;
 	private static int myport;
 	private static ServerSocket mysocket;
-	private static List<Socket> servers;
+	private static List<Integer> servers;
 	private static boolean serveractive = true;
 	
 	
@@ -24,6 +25,7 @@ public class FileServerMain {
 		try{
 			mysocket = new ServerSocket(myport);
 			System.out.println("Server started on port: "+myport);
+			notifyServers();
 		} catch(IOException e){
 			System.out.println("unable to start server on port "+myport+", closing server.");
 			e.printStackTrace();
@@ -43,10 +45,25 @@ public class FileServerMain {
 		}
 	}
 	
-	public static void onUploadComplete(String filename){
+	private static void notifyServers() {
 		int size = servers.size();
 		for(int i=0; i<size; i++){
-			FileDistributor fd = new FileDistributor(filename, servers.get(i));
+			try {
+				Socket socket = new Socket(SERVER_ADDRESS, servers.get(i));
+				PrintWriter pw;
+				pw = new PrintWriter(socket.getOutputStream(), true);
+				pw.println("server "+myport);
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public static void onUploadComplete(String filepath, String filename){
+		int size = servers.size();
+		for(int i=0; i<size; i++){
+			FileDistributor fd = new FileDistributor(filepath, filename, servers.get(i));
 			Thread thread = new Thread(fd);
 			thread.start();
 		}
@@ -73,16 +90,17 @@ public class FileServerMain {
 		myport = STARTING_PORT;
 		int portnum = myport;
 		if(servers == null)
-			servers = new ArrayList<Socket>();
+			servers = new ArrayList<Integer>();
 		boolean openportfound = false;
 		while(portnum <= MAX_PORT){
 			try{
 				Socket socket = new Socket(SERVER_ADDRESS, portnum);
 				if(verifyServer(socket)){
-					servers.add(socket);
+					servers.add(portnum);
 					System.out.println("server found at port: "+portnum+", adding to server list");
 				}
 				portnum++;
+				socket.close();
 			} catch(IOException e){
 				if(!openportfound){
 					openportfound = true;
@@ -94,25 +112,21 @@ public class FileServerMain {
 	}
 	
 	private static boolean verifyServer(Socket socket) {
-		boolean verified = false;
 		try {
 			BufferedReader input = new BufferedReader(new InputStreamReader(
 	                socket.getInputStream()));
 			PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
 			pw.println("verify");
 			String check = input.readLine();
-			verified = "42".equals(check);
-			if(verified)
-				pw.println("server");
-			return verified;
+			return "42".equals(check);
 		} catch (IOException e) {
 			return false;
 		}
 	}
 
-	public static void addServer(Socket connection) {
-		servers.add(connection);
-		
+	public static void addServer(int portnum) {
+		servers.add(portnum);
+		System.out.println("added server "+portnum+" to servers list.");		
 	}
 	
 	public static void main(String [] args){

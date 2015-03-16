@@ -44,11 +44,13 @@ public class SWE622Server implements Runnable {
 			switch(instringparts[0]){
 				case "dl": sendFile(instringparts);
 					break;
-				case "ul": receiveFile(instringparts);
+				case "ul": receiveFile(instringparts, true);
+					break;
+				case "ulserve": receiveFile(instringparts, false);
 					break;
 				case "verify": verify();
 					break;
-				case "server": FileServerMain.addServer(connection);
+				case "server": FileServerMain.addServer(Integer.parseUnsignedInt(instringparts[1]));
 			}
 			
 		} catch (IOException e) {
@@ -74,7 +76,7 @@ public class SWE622Server implements Runnable {
 		pw.println("42");
 	}
 
-	private void receiveFile(String[] instringparts) {
+	private void receiveFile(String[] instringparts, boolean distribute) {
 		
 		BufferedOutputStream tofile = null;
 		boolean resuming = false;
@@ -103,6 +105,7 @@ public class SWE622Server implements Runnable {
 				try {
 					infile.delete();
 					infile.createNewFile();
+					myfilelength = 0;
 					System.out.println("File "+filename+" already exists, overwriting.");
 				} catch (IOException e) {
 					pw.println("  Error creating file");
@@ -132,22 +135,27 @@ public class SWE622Server implements Runnable {
 			int buffersize = connection.getReceiveBufferSize();
 			byte[] packet = new byte[buffersize];
 			while(totalbytes < filelength){
+				System.out.println("about to read from instream, buffersize = "+buffersize);
 				bytesread = instream.read(packet, 0, buffersize);
+				System.out.println("just got "+bytesread+" bytes from instream.");
 				if (bytesread != -1) {
                     totalbytes += bytesread;
                     tofile.write(packet, 0 , bytesread);
                     System.out.println("File "+filename+": "+bytesread
                     		+" bytes received out of "+filelength+".");
-                } 
+                } else {
+                	break;
+                }
 			}
 			if(instream != null) instream.close();
             if(tofile != null){ 
                 tofile.flush();
                 tofile.close();
             }
-            System.out.println("File "+filename+"has finished with "+bytesread
+            System.out.println("File "+filename+" has finished with "+bytesread
             		+" bytes received out of "+filelength+".");
-            FileServerMain.onUploadComplete(filepath+filename);
+            if(distribute)
+            	FileServerMain.onUploadComplete(filepath, filename);
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
