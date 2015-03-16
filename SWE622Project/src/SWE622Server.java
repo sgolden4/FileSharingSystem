@@ -147,6 +147,7 @@ public class SWE622Server implements Runnable {
                 	if(totalbytes < filelength)
                 		System.out.println("failed to receive file, only received "
                 				+totalbytes+" of "+filelength);
+                	distribute = false;
                 	break;
                 }
 			}
