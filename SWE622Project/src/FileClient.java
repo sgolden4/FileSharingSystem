@@ -343,7 +343,7 @@ public class FileClient {
         int bytesRead = 0;
         int current = 0;
         byte [] packet  = null;
-        String filesize;
+        String filesize, response;
         long totalBytes = 0;
 
         //Attempt Connection with selected Server
@@ -361,7 +361,7 @@ public class FileClient {
             try {
                 fromServer = sock.getInputStream();
                 inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-                toFile = new BufferedOutputStream(new FileOutputStream(FILE_TO_RECEIVED + filename));
+                toFile = new BufferedOutputStream(new FileOutputStream(FILE_TO_RECEIVED + filename, true));
                 outToServer = new DataOutputStream(sock.getOutputStream());
             } catch (IOException e) {
                 System.out.println("  Failure to get IO Streams.");
@@ -373,6 +373,13 @@ public class FileClient {
                 outToServer.writeBytes("dl " + filename + " resume " +
                         bytesDownloaded.toString() + '\n');
 
+                response = inFromServer.readLine();
+                
+                if (!response.equals("sending")) {
+                    System.out.println("  " + response);
+                    break;
+                }
+                
                 filesize = inFromServer.readLine();
 
                 Long length = Long.parseLong(filesize.replaceAll("\n", ""));
