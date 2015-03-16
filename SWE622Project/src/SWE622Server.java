@@ -180,13 +180,14 @@ public class SWE622Server implements Runnable {
 			pw.println("sending");
 			long length = file.length() - startposition;
 			pw.println(length);
-			byte[] packet = new byte[PACKET_SIZE];
 			try {
+				int buffersize = connection.getReceiveBufferSize();
+				byte[] packet = new byte[buffersize];
 				BufferedInputStream instream = new BufferedInputStream(new FileInputStream(file));
 				instream.skip(startposition);
 				long remaining = length;
 				while (remaining > 0) {
-                    if (remaining < PACKET_SIZE) {
+                    if (remaining < buffersize) {
                         packet = new byte[(int) remaining];
                     }
                     int bytesread = instream.read(packet);
