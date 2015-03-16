@@ -39,15 +39,7 @@ public class FileServerMain {
 			} catch(IOException e){
 				
 			}
-			if(mysocket != null)
-				try {
-					mysocket.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 		}
-		
 	}
 	
 	public static void onUploadComplete(String filename){
@@ -58,6 +50,22 @@ public class FileServerMain {
 			thread.start();
 		}
 	}
+	
+	@Override
+	protected void finalize() {
+		try {
+			if(mysocket != null)
+				mysocket.close();
+			super.finalize();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Throwable e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 
 	private static void findOtherServers() {
 

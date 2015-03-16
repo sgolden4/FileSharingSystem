@@ -11,7 +11,7 @@ public class FileClient {
     public final static int[] SOCKET_PORT = {3210,3211,3212};
     public final static String[] SERVER = {"1","2","3"};  //Server names
     public final static String SERVER_ADDRESS = "127.0.0.1";
-    public final static String FILE_TO_RECEIVED = "c:/Users/Steven/Documents/tempClient/";  
+    public final static String FILE_TO_RECEIVED = "c:/temp/client/";  
     public final static int PACKET_SIZE = 10000000;
 
     public static boolean EXIT = false; 
@@ -127,7 +127,7 @@ public class FileClient {
         int bytesRead = 0;
         int current = 0;
         byte [] packet  = new byte [PACKET_SIZE + 1];
-        String filesize;
+        String filesize, response;
         long totalBytes = 0;
 
         //Attempt Connection with selected Server
@@ -156,11 +156,18 @@ public class FileClient {
             try {
                 outToServer.writeBytes("dl " + filename + '\n');
 
+                response = inFromServer.readLine();
+                
+                if (!response.equals("sending")) {
+                    System.out.println("  " + response);
+                    break;
+                }
+                
                 filesize = inFromServer.readLine();
-
+                
                 long length = Long.parseLong(filesize.replaceAll("\n", ""));
 
-                System.out.println("File size: " + Long.parseLong(filesize.replaceAll("\n", "")));
+                System.out.println("  File size: " + Long.parseLong(filesize.replaceAll("\n", "")));
 
                 totalBytes = 0;
                 while (totalBytes < length) {
@@ -172,15 +179,15 @@ public class FileClient {
                     } 
                     toFile.flush();
                 }
-                System.out.println("File " + FILE_TO_RECEIVED + filename
+                System.out.println("  File " + FILE_TO_RECEIVED + filename
                         + " downloaded. Size: " + totalBytes);
 
             } catch (IOException e) {
                 if (totalBytes != 0) {
-                    System.out.println("Error in Receiving file. Can resume download using command rdl");
+                    System.out.println("  Error in Receiving file. Can resume download using command rdl");
                     ResumeDLList.put(filename, totalBytes);
                 } else {
-                    System.out.println("Failure to receive file: No bytes read");
+                    System.out.println("  Failure to receive file: No bytes read");
                 }
             }
 
@@ -195,7 +202,7 @@ public class FileClient {
             if (outToServer != null)  outToServer.close();
             if (toFile != null)  toFile.close();
         } catch (IOException e) {
-            System.out.println("Unable to close connections");
+            System.out.println("  Unable to close connections");
             return;
         }
     }
@@ -254,7 +261,7 @@ public class FileClient {
                 bis = new BufferedInputStream(new FileInputStream(myFile));
 
             } catch (IOException e) {
-                System.out.println("Failure to get IO Streams");
+                System.out.println("  Failure to get IO Streams");
                 break;
             }
 
@@ -267,23 +274,22 @@ public class FileClient {
                         int remaining = (int) (length - totalWrite);
                         byte[] b = new byte[remaining];
                         int read = bis.read(b);
-                        System.out.println(totalWrite);
                         os.write(b);
                         totalWrite += read;
+                        System.out.println(totalWrite);
                     } else {
                         int read = bis.read(bytearray);
-
-                        System.out.println(totalWrite);
                         os.write(bytearray);
                         totalWrite += read;
+                        System.out.println(totalWrite);
                     }
                 }
             } catch (IOException e) {
                 if (totalWrite != 0) {
-                    System.out.println("Error in Uploading file. Can resume upload using command rul");
+                    System.out.println("  Error in Uploading file. Can resume upload using command rul");
                     ResumeULList.put(filename, servname);
                 } else {
-                    System.out.println("Failure to upload file: No bytes sent");
+                    System.out.println("  Failure to upload file: No bytes sent");
                 }            
             }
             break;
@@ -296,7 +302,7 @@ public class FileClient {
             if (outToServer != null) outToServer.close();
             if (os != null) os.close();
         } catch (IOException e) {
-            System.out.println("Failure to close connections");
+            System.out.println("  Failure to close connections");
             return;
         }
     }
@@ -357,7 +363,7 @@ public class FileClient {
                 toFile = new BufferedOutputStream(new FileOutputStream(FILE_TO_RECEIVED + filename));
                 outToServer = new DataOutputStream(sock.getOutputStream());
             } catch (IOException e) {
-                System.out.println("Failure to get IO Streams.");
+                System.out.println("  Failure to get IO Streams.");
                 break;
             }
 
@@ -382,15 +388,15 @@ public class FileClient {
                     } 
                     toFile.flush();
                 }
-                System.out.println("File " + FILE_TO_RECEIVED + filename
+                System.out.println("  File " + FILE_TO_RECEIVED + filename
                         + " downloaded. Size: " + totalBytes);
                 ResumeULList.remove(filename);
             } catch (IOException e) {
                 if (totalBytes != 0) {
-                    System.out.println("Error in Receiving file. Can resume download using command rdl");
+                    System.out.println("  Error in Receiving file. Can resume download using command rdl");
                     ResumeDLList.replace(filename, bytesDownloaded + totalBytes); 
                 } else {
-                    System.out.println("Failure to receive file: No bytes read");
+                    System.out.println("  Failure to receive file: No bytes read");
                 }
             }
 
@@ -405,7 +411,7 @@ public class FileClient {
             if (outToServer != null)  outToServer.close();
             if (toFile != null)  toFile.close();
         } catch (IOException e) {
-            System.out.println("Unable to close connections");
+            System.out.println("  Unable to close connections");
             return;
         }
         
@@ -472,7 +478,7 @@ public class FileClient {
                 bis = new BufferedInputStream(new FileInputStream(myFile));
                 inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             } catch (IOException e) {
-                System.out.println("Failure to get IO Streams");
+                System.out.println("  Failure to get IO Streams");
                 break;
             }
 
@@ -499,10 +505,10 @@ public class FileClient {
                 }
             } catch (IOException e) {
                 if (totalWrite != 0) {
-                    System.out.println("Error in Uploading file. Can resume upload using command rul");
+                    System.out.println("  Error in Uploading file. Can resume upload using command rul");
                     ResumeULList.put(filename, servname);
                 } else {
-                    System.out.println("Failure to upload file: No bytes sent");
+                    System.out.println("  Failure to upload file: No bytes sent");
                 }            
             }
             break;
@@ -516,7 +522,7 @@ public class FileClient {
             if (os != null) os.close();
             if (inFromServer != null) inFromServer.close();
         } catch (IOException e) {
-            System.out.println("Failure to close connections");
+            System.out.println("  Failure to close connections");
             return;
         }
         

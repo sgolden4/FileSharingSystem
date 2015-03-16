@@ -75,22 +75,13 @@ public class SWE622Server implements Runnable {
 	}
 
 	private void receiveFile(String[] instringparts) {
-		/* TODO: 1. check string for whether we are resuming or not
-				 2. check if file exists already
-				 3. create file if it doesn't exist and we are not resuming, 
-				 		open file if it does exist and we are resuming
-				 4. send "receiving\n" if everything is good, otherwise send "failure\n" and return. 
-				 5. get data from client
-				 6. if file finished, call FileServerMain.onUploadComplete(filename) so it can
-				  	start sending the file to the other servers.
-		*/
 		
 		BufferedOutputStream tofile = null;
 		byte[] packet = new byte[PACKET_SIZE + 1];
 		boolean resuming = false;
 		
 		if(instringparts.length < 3){
-			pw.println("failure : need more information");
+			pw.println("  Failure : Need more information");
 			return;
 		}
 		
@@ -114,7 +105,7 @@ public class SWE622Server implements Runnable {
 					infile.delete();
 					infile.createNewFile();
 				} catch (IOException e) {
-					pw.println("error creating file");
+					pw.println("  Error creating file");
 					return;
 				}
 			}
@@ -123,7 +114,7 @@ public class SWE622Server implements Runnable {
 			try {
 				infile.createNewFile();
 			} catch (IOException e) {
-				pw.println("error creating file");
+				pw.println("  Error creating file");
 	            return;
 			}
 		}
@@ -159,7 +150,7 @@ public class SWE622Server implements Runnable {
 	private void sendFile(String[] instringparts) {
 
 		if(instringparts.length < 2){
-			pw.println("failure : need more information");
+			pw.println("  Failure : Need more information");
 			return;
 		}
 		
@@ -172,11 +163,12 @@ public class SWE622Server implements Runnable {
 		
 		File file = new File(filepath + filename);
 		if(!file.exists()){
-			pw.println("failure : file does not exist");
+			pw.println("  Failure : File does not exist");
 			return;
 		} else {
 			pw.println("sending");
 			long length = file.length() - startposition;
+			pw.println(length);
 			byte[] packet = new byte[PACKET_SIZE];
 			try {
 				BufferedInputStream instream = new BufferedInputStream(new FileInputStream(file));
