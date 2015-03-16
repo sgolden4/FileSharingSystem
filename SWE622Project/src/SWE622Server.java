@@ -85,7 +85,7 @@ public class SWE622Server implements Runnable {
 		}
 		
 		String filename = instringparts[1];
-		int filelength = Integer.parseUnsignedInt(instringparts[2]);
+		Long filelength = Long.parseLong(instringparts[2]);
 		
 		//TODO: for security, check/sanitize filename
 
