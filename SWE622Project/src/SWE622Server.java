@@ -12,10 +12,13 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 
 public class SWE622Server implements Runnable {
     public final static int PACKET_SIZE = 10000000;
+
+	private static final int TIMEOUT = 1000;
 	
 	Socket connection;
 	ServerSocket mysocket;
@@ -32,6 +35,7 @@ public class SWE622Server implements Runnable {
 
 	public void run() {
 		try {
+			connection.setSoTimeout(TIMEOUT);
 			input = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			output = connection.getOutputStream();
 			pw = new PrintWriter(output, true);
@@ -125,13 +129,12 @@ public class SWE622Server implements Runnable {
 		}
 		
 
-		
+		long totalbytes = myfilelength;
+		int bytesread = 0;
 		try {
 			System.out.println("Receiving file "+filename);
 			InputStream instream = connection.getInputStream();
 			tofile = new BufferedOutputStream(new FileOutputStream(infile, resuming));
-			long totalbytes = myfilelength;
-			int bytesread = 0;
 			int buffersize = connection.getReceiveBufferSize();
 			byte[] packet = new byte[buffersize];
 			while(totalbytes < filelength){
@@ -167,6 +170,13 @@ public class SWE622Server implements Runnable {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (SocketTimeoutException e){
+        	if(totalbytes < filelength){
+        		System.out.println("failed to receive file, only received "
+        				+totalbytes+" of "+filelength);
+            	distribute = false;
+            	pw.println("received "+totalbytes);
+        	}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

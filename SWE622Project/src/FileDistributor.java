@@ -57,11 +57,13 @@ public class FileDistributor implements Runnable {
                     }
                     int bytesread = instream.read(packet);
                     output.write(packet);
+                	output.flush();
                     remaining -= bytesread;
                     System.out.println("sent "+bytesread+" bytes to server "+server.getPort());
                     if(remaining == 0){
             			String instring = br.readLine();
             			String[] instringparts = instring.split(" ");
+            			System.out.println("message from server: "+instring);
             			if("received".equals(instringparts[0])){
             				long resumepoint = Long.parseUnsignedLong(instringparts[1]);
             				remaining = length - resumepoint;
