@@ -50,6 +50,13 @@ public class FileDistributor implements Runnable {
 				System.out.println("Attempting to send "+filename+" to server "+server.getPort()
 						+".  Length = "+length);
 				pw.println("ulserve "+filename+" "+length);
+    			String instring = br.readLine();
+    			if(!"ready".equals(instring)){
+    				System.out.println("server didn't respond ready");
+    				instream.close();
+    				closeConnections();
+    				return;
+    			}
 				long remaining = length;
 				while (remaining > 0) {
                     if (remaining < buffersize) {
@@ -61,7 +68,7 @@ public class FileDistributor implements Runnable {
                     remaining -= bytesread;
                     System.out.println("sent "+bytesread+" bytes to server "+server.getPort());
                     if(remaining == 0){
-            			String instring = br.readLine();
+                    	instring = br.readLine();
             			String[] instringparts = instring.split(" ");
             			System.out.println("message from server: "+instring);
             			if("received".equals(instringparts[0])){
@@ -73,6 +80,15 @@ public class FileDistributor implements Runnable {
             				instream.skip(remaining);
             				openConnection();
             				pw.println("ulserve "+filename+" "+length+" resume");
+            				instring = br.readLine(); //response with length
+            				instring = br.readLine(); //response with ready
+            				if(!"ready".equals(instring)){
+                				System.out.println("server didn't respond ready");
+                				instream.close();
+                				closeConnections();
+                				return;
+            				}
+            					
             			}
                     }
                 }

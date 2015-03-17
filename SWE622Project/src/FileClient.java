@@ -239,6 +239,7 @@ public class FileClient {
         DataOutputStream outToServer = null;
         OutputStream os = null;
         BufferedInputStream bis = null;
+        BufferedReader inFromServer = null;
 
 
         long length = myFile.length();
@@ -259,6 +260,7 @@ public class FileClient {
                 outToServer = new DataOutputStream(sock.getOutputStream());
                 os = sock.getOutputStream();
                 bis = new BufferedInputStream(new FileInputStream(myFile));
+                inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
             } catch (IOException e) {
                 System.out.println("  Failure to get IO Streams");
@@ -268,6 +270,12 @@ public class FileClient {
             //Send and Receive Info
             try {
                 outToServer.writeBytes("ul " + filename + ' ' + myFile.length() + '\n');
+                String inString = inFromServer.readLine();
+                if(!"ready".equals(inString)){
+                	bis.close();
+                	sock.close();
+                	return;
+                }
     			int buffersize = sock.getReceiveBufferSize();
     			bytearray = new byte[buffersize];
                 while (totalWrite < length) {

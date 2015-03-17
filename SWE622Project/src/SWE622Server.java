@@ -132,6 +132,7 @@ public class SWE622Server implements Runnable {
 		long totalbytes = myfilelength;
 		int bytesread = 0;
 		try {
+			pw.println("ready");
 			System.out.println("Receiving file "+filename);
 			InputStream instream = connection.getInputStream();
 			tofile = new BufferedOutputStream(new FileOutputStream(infile, resuming));
