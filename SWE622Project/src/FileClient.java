@@ -338,6 +338,15 @@ public class FileClient {
         servname = SERVER_ADDRESS;
         
         Long bytesDownloaded = ResumeDLList.get(filename);
+        if (bytesDownloaded == null) {
+            File fileOnSystem = new File(FILE_TO_RECEIVED + filename);
+            if (!fileOnSystem.exists()) {
+                System.out.println("  Cannot find partially downloaded file");
+                return;
+            } else {
+                bytesDownloaded = fileOnSystem.length();
+            }
+        }
         
         BufferedOutputStream toFile = null;
         BufferedReader inFromServer = null;
@@ -390,7 +399,7 @@ public class FileClient {
 
                 Long length = Long.parseLong(filesize.replaceAll("\n", ""));
 
-                System.out.println("File size: " + length);
+                System.out.println("  Remaining File size: " + length);
 
                 totalBytes = 0;
                 int buffersize = sock.getReceiveBufferSize();
@@ -405,7 +414,7 @@ public class FileClient {
                     toFile.flush();
                 }
                 System.out.println("  File " + FILE_TO_RECEIVED + filename
-                        + " downloaded. Size: " + totalBytes);
+                        + " downloaded. Size: " + (totalBytes + bytesDownloaded));
                 ResumeULList.remove(filename);
             } catch (IOException e) {
                 if (totalBytes != 0) {
