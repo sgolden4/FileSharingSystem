@@ -18,9 +18,10 @@ public class FileClient {
     public static Map<String, Long> ResumeDLList = new HashMap<String, Long>(); 
     public static Map<String, String> ResumeULList = new HashMap<String, String>(); 
 
-
+    public static Scanner keyboard;
+    
     public static void main (String [] args ) throws IOException {
-        Scanner keyboard = new Scanner(System.in);
+        keyboard = new Scanner(System.in);
         try {
             System.out.println("Welcome to our File Server!\n");
             help();
@@ -452,8 +453,23 @@ public class FileClient {
         String filename = tokens[1];
         String servname = ResumeULList.get(filename);
         if (servname == null) {
-            System.out.println("  There does not exist a previous partial upload attempt");
-            return;
+            System.out.println("  A previous partial upload does not exist for this session");
+            boolean valid = false;
+            while (!valid) {
+                System.out.println("  Would you like to search a server for a partial file? (yes/no)");
+                System.out.print("> ");
+                String yesOrNo = keyboard.nextLine();
+                if ("yes".equalsIgnoreCase(yesOrNo)) {
+                    System.out.println("  Which server would you like to search?");
+                    System.out.print("> ");
+                    servname = keyboard.nextLine();
+                    valid = true;
+                } else if ("no".equalsIgnoreCase(yesOrNo)) {
+                    return;
+                } else {
+                    System.out.print("  Invalid response.");
+                }
+            }
         }
         int socket = -1;
         for(int i = 0; i < SERVER.length; i++) {
@@ -530,6 +546,8 @@ public class FileClient {
                         totalWrite += read;
                     }
                 }
+                System.out.println("  File " + FILE_TO_RECEIVED + filename
+                        + " uploaded. Size: " + (totalWrite + offset));
             } catch (IOException e) {
                 if (totalWrite != 0) {
                     System.out.println("  Error in Uploading file. Can resume upload using command rul");
