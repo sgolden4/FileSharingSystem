@@ -272,9 +272,7 @@ public class FileClient {
                 outToServer.writeBytes("ul " + filename + ' ' + myFile.length() + '\n');
                 String inString = inFromServer.readLine();
                 if(!"ready".equals(inString)){
-                	bis.close();
-                	sock.close();
-                	return;
+                	break;
                 }
     			int buffersize = sock.getReceiveBufferSize();
     			bytearray = new byte[buffersize];
@@ -504,6 +502,10 @@ public class FileClient {
                 offsetString = inFromServer.readLine();
                 offset = Long.parseLong(offsetString);
                 bis.skip(offset);
+                String inString = inFromServer.readLine();
+                if(!"ready".equals(inString)){
+                    break;
+                }
                 int buffersize = sock.getReceiveBufferSize();
                 bytearray = new byte[buffersize];
                 while (totalWrite < (length - offset)) {
