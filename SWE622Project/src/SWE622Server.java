@@ -200,6 +200,11 @@ public class SWE622Server implements Runnable {
 		}
 		
 		String filename = instringparts[1];
+		if(!filenameCheck(filename)){
+			pw.println(" Failure: invalid filename");
+			System.out.println("Client attempted to request invalid filename: "+filename);
+			return;
+		}
 		//boolean resuming = false;
 		long startposition = 0;
 		if(instringparts.length > 3 && "resume".equals(instringparts[2])){
@@ -239,7 +244,7 @@ public class SWE622Server implements Runnable {
 	}
 	
 	public boolean filenameCheck(String filename){
-		Pattern pattern = Pattern.compile("^([a-zA-Z][a-zA-Z0-9]*.?)+[a-zA-Z0-9]+$");
+		Pattern pattern = Pattern.compile("^([a-zA-Z][a-zA-Z0-9_-]*.?)+[a-zA-Z0-9]+$");
 		Matcher matcher = pattern.matcher(filename);
 		return matcher.find();
 	}
