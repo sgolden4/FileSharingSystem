@@ -166,7 +166,12 @@ public class FileClient {
                 
                 filesize = inFromServer.readLine();
                 if (filesize != null) {
-                    length = Long.parseLong(filesize.replaceAll("\n", ""));
+                    try {
+                        length = Long.parseLong(filesize.replaceAll("\n", ""));
+                    } catch (NumberFormatException e) {
+                        System.out.println("  Invalid file size received from server.");
+                        break;
+                    }
                 } else {
                     System.out.println("  Could not get filesize from server.");
                     break;
@@ -275,7 +280,8 @@ public class FileClient {
             try {
                 outToServer.writeBytes("ul " + filename + ' ' + myFile.length() + '\n');
                 String inString = inFromServer.readLine();
-                if(!"ready".equals(inString)){
+                if(inString == null || !"ready".equals(inString)){
+                    System.out.println("  No response from server.");
                 	break;
                 }
     			int buffersize = sock.getReceiveBufferSize();
@@ -393,15 +399,22 @@ public class FileClient {
                         bytesDownloaded.toString() + '\n');
 
                 response = inFromServer.readLine();
-                
-                if (!response.equals("sending")) {
+                if (response == null) {
+                    System.out.println("  No response from Server.");
+                    break;
+                } else if (!response.equals("sending")) {
                     System.out.println("  " + response);
                     break;
                 }
                 
                 filesize = inFromServer.readLine();
                 if (filesize != null) {
-                    length = Long.parseLong(filesize.replaceAll("\n", ""));
+                    try {
+                        length = Long.parseLong(filesize.replaceAll("\n", ""));
+                    } catch (NumberFormatException e) {
+                        System.out.println("  Invalid file size received from server.");
+                        break;
+                    }
                 } else {
                     System.out.println("  Could not get filesize from server.");
                     break;
@@ -532,7 +545,17 @@ public class FileClient {
             try {
                 outToServer.writeBytes("ul " + filename + ' ' + myFile.length() + " resume\n");
                 offsetString = inFromServer.readLine();
-                offset = Long.parseLong(offsetString);
+                if (offsetString != null) {
+                    try {
+                        offset = Long.parseLong(offsetString);
+                    } catch (NumberFormatException e) {
+                        System.out.println("  Invalid file size received from server.");
+                        break;
+                    }
+                } else {
+                    System.out.println("  Invalid file size received from server.");
+                    break;
+                }
                 bis.skip(offset);
                 String inString = inFromServer.readLine();
                 if(!"ready".equals(inString)){
