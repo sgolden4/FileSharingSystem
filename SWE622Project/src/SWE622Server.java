@@ -13,6 +13,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class SWE622Server implements Runnable {
@@ -91,6 +93,11 @@ public class SWE622Server implements Runnable {
 		}
 		
 		String filename = instringparts[1];
+		if(!filenameCheck(filename)){
+			pw.println(" Failure: invalid filename");
+			System.out.println("Client attempted to send invalid filename: "+filename);
+			return;
+		}
 		long filelength = Long.parseLong(instringparts[2]);
 		
 		//TODO: for security, check/sanitize filename
@@ -229,7 +236,12 @@ public class SWE622Server implements Runnable {
 			}
 			
 		}
-		
+	}
+	
+	public boolean filenameCheck(String filename){
+		Pattern pattern = Pattern.compile("^([a-zA-Z][a-zA-Z0-9]*.?)+[a-zA-Z0-9]+$");
+		Matcher matcher = pattern.matcher(filename);
+		return matcher.find();
 	}
 
 }
