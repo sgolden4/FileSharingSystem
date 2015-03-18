@@ -476,7 +476,8 @@ public class FileClient {
             System.out.println("  A previous partial upload does not exist for this session");
             boolean valid = false;
             while (!valid) {
-                System.out.println("  Would you like to search a server for a partial file? (yes/no)");
+                System.out.println("  Would you like to search a server for a partial file? (yes/no)" +
+                        "\n  ****NOTE: If a partial file is not found, the file will be uploaded normally");
                 System.out.print("> ");
                 String yesOrNo = keyboard.nextLine();
                 if ("yes".equalsIgnoreCase(yesOrNo)) {
