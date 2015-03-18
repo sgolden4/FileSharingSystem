@@ -51,7 +51,7 @@ public class FileClient {
         System.out.println("Command options are as follows:\n" +
                 "(1) listserv   :: Lists all available Servers\n" +
                 "(2) dl  <filename> <Server Name> :: Downloads file <filename> from Server <ServerName>\n" +
-                "(3) ul  <filepath> <Server Name> :: Uploads file at <filepath> to Server <ServerName>\n" + 
+                "(3) ul  <filename> <Server Name> :: Uploads file at <filepath> to Server <ServerName>\n" + 
                 "(4) rdl <filename> <Server Name> :: Resumes downloading a partially downloaded file\n " +                
                 "                                    from Server <ServerName>\n" +
                 "(5) rul <filename>               :: Resumes an upload of file <filename> to the same Server\n" +
