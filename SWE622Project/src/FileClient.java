@@ -129,7 +129,7 @@ public class FileClient {
         int current = 0;
         byte [] packet  = null;
         String filesize, response;
-        long totalBytes = 0;
+        long totalBytes = 0, length;
 
         //Attempt Connection with selected Server
         try {
@@ -165,9 +165,12 @@ public class FileClient {
                 }
                 
                 filesize = inFromServer.readLine();
-                
-                long length = Long.parseLong(filesize.replaceAll("\n", ""));
-
+                if (filesize != null) {
+                    length = Long.parseLong(filesize.replaceAll("\n", ""));
+                } else {
+                    System.out.println("  Could not get filesize from server.");
+                    break;
+                }
                 System.out.println("  File size: " + Long.parseLong(filesize.replaceAll("\n", "")));
 
                 totalBytes = 0;
@@ -360,7 +363,7 @@ public class FileClient {
         int current = 0;
         byte [] packet  = null;
         String filesize, response;
-        long totalBytes = 0;
+        long totalBytes = 0, length;
 
         //Attempt Connection with selected Server
         try {
@@ -397,8 +400,12 @@ public class FileClient {
                 }
                 
                 filesize = inFromServer.readLine();
-
-                Long length = Long.parseLong(filesize.replaceAll("\n", ""));
+                if (filesize != null) {
+                    length = Long.parseLong(filesize.replaceAll("\n", ""));
+                } else {
+                    System.out.println("  Could not get filesize from server.");
+                    break;
+                }
 
                 System.out.println("  Remaining File size: " + length);
 
