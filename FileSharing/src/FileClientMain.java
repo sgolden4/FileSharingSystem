@@ -9,24 +9,25 @@ public class FileClientMain {
 
     public final static int[] SOCKET_PORT = {3210,3211,3212};
     public final static String[] SERVER_ADDRESS = {"127.0.0.1", "127.0.0.1", "127.0.0.1"};
-
+    public final static String[] SERVER_NAMES = {"Server1", "Server2", "Server3"};
     public static boolean EXIT = false;  
     public static Scanner keyboard;
     public static String directory;
 
     public static void main (String [] args) throws IOException {
         if(args.length != 1) {
-            System.out.println("Must name directory for downloaded/uploading files.");
-            return;
-        }
-        File dir = new File(args[0]);
+            //System.out.println("Must name directory for downloaded/uploading files.");
+        	directory = ".";
+            //return;
+        } else
+        	directory = args[0];
+        File dir = new File(directory);
         if(!dir.exists()) {
             if(!dir.mkdir()) {
                 System.out.println("  Directory could not be made with that path");
                 return;
             }
         }
-        directory = args[0];
         
         keyboard = new Scanner(System.in);
         try {
@@ -73,9 +74,9 @@ public class FileClientMain {
         for (int i = 0; i < SOCKET_PORT.length; i++ ) {
             try {
                 sock[i] = new Socket(SERVER_ADDRESS[i], SOCKET_PORT[i]);
-                System.out.printf("  Connecting to %s...\n",SERVER_ADDRESS[i]); 
+                System.out.printf("  Connecting to <%s> : %s:%d ...\n",SERVER_NAMES[i], SERVER_ADDRESS[i],SOCKET_PORT[i]); 
             } catch (SocketException se) {
-                System.out.printf("  Cannot Connect to %s\n", SERVER_ADDRESS[i]);
+                System.out.printf("  Cannot Connect to <%s> : %s:%d\n",SERVER_NAMES[i], SERVER_ADDRESS[i],SOCKET_PORT[i]);
             } finally {
                 for(Socket s: sock) {
                     if (s != null) {
@@ -140,9 +141,11 @@ public class FileClientMain {
 
     private static Socket getSocket(String servname) {
         int socket = -1;
-        for(int i = 0; i < SERVER_ADDRESS.length; i++) {
-            if (SERVER_ADDRESS[i].equalsIgnoreCase(servname)) {
+        String servaddr = null;
+        for(int i = 0; i < SERVER_NAMES.length; i++) {
+            if (SERVER_NAMES[i].equalsIgnoreCase(servname)) {
                 socket = SOCKET_PORT[i] ;
+                servaddr = SERVER_ADDRESS[i];
                 break;
             }
         }
@@ -155,7 +158,7 @@ public class FileClientMain {
         //Attempt Connection with selected Server
         Socket sock = null;
         try {
-            sock = new Socket(servname,socket);
+            sock = new Socket(servaddr,socket);
         } catch (IOException ioe) {
             System.out.printf("  Cannot Connect to %s\n", servname);
         }
