@@ -57,6 +57,8 @@ public class SWE622Server implements Runnable {
 				case "verify": verify();
 					break;
 				case "server": FileServerMain.addServer(Integer.parseUnsignedInt(instringparts[1]));
+					break;
+				case "listfiles": listFiles();
 			}
 			
 		} catch (IOException e) {
@@ -66,6 +68,19 @@ public class SWE622Server implements Runnable {
 		closeConnections();
 	}
 	
+	private void listFiles() {
+		System.out.println("directory listing requested.");
+		File dir = new File(filepath);
+		File[] filelist = dir.listFiles();
+		for (File file : filelist) {
+		    if (file.isFile()) {
+		        pw.println(file.getName());
+		    }
+		}
+		pw.println("done!");
+		
+	}
+
 	private void closeConnections(){
         try {
             if(pw != null)  pw.close();

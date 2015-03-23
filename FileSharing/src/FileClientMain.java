@@ -1,5 +1,8 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.Scanner;
@@ -44,10 +47,11 @@ public class FileClientMain {
                 int op = parseInput(input);
                 switch (op) {
                 case 1: listserv(); break;
-                case 2: dl(input); break;
-                case 3: ul(input); break;
-                case 4: help(); break;
-                case 5: exit(); break;     
+                case 2: listfiles(input); break;
+                case 3: dl(input); break;
+                case 4: ul(input); break;
+                case 5: help(); break;
+                case 6: exit(); break;     
                 }
             }
 
@@ -56,14 +60,44 @@ public class FileClientMain {
         }
     }
 
-    private static int parseInput(String input) {
+    private static void listfiles(String input) {
+        String[] tokens = input.split(" ");
+        if (tokens.length != 2) {
+            System.out.println("  Invalid Command length");
+            return;
+        }
+        String servname = tokens[1];
+
+        Socket sock = getSocket(servname);
+        if (sock == null) {
+            return;
+        } else {
+            try {
+            	String inputline = "";
+            	System.out.println("Getting directory listing from "+servname+":");
+    			PrintWriter pw = new PrintWriter(sock.getOutputStream(), true);
+    			pw.println("listfiles");
+				BufferedReader inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+				while(!"done!".equals(inputline)){
+					inputline = inFromServer.readLine();
+					System.out.println(inputline);
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+	}
+
+	private static int parseInput(String input) {
         String[] tokens = input.split(" ");
         switch (tokens[0]) {
         case "listserv": return 1;
-        case "dl": return 2;
-        case "ul": return 3;
-        case "help": return 4;
-        case "exit": return 5;
+        case "listfiles": return 2;
+        case "dl": return 3;
+        case "ul": return 4;
+        case "help": return 5;
+        case "exit": return 6;
         default: System.out.println("  Unrecognized Command");
         }
         return 0;
@@ -168,10 +202,11 @@ public class FileClientMain {
     private static void help() {
         System.out.println("Command options are as follows:\n" +
                 "(1) listserv   :: Lists all available Servers\n" +
-                "(2) dl  <filename> <Server Name> :: Downloads file <filename> from Server <ServerName>\n" +
-                "(3) ul  <filename> <Server Name> :: Uploads file at <filepath> to Server <ServerName>\n" + 
-                "(4) help  :: Lists all options\n" +
-                "(5) exit  :: Closes File Sharing client\n");
+                "(2) listfiles <Server Name>   :: Lists all files on server <ServerName>\n" +
+                "(3) dl  <filename> <Server Name> :: Downloads file <filename> from Server <ServerName>\n" +
+                "(4) ul  <filename> <Server Name> :: Uploads file at <filepath> to Server <ServerName>\n" + 
+                "(5) help  :: Lists all options\n" +
+                "(6) exit  :: Closes File Sharing client\n");
     }
 
     private static void exit() {
