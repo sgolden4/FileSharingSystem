@@ -109,7 +109,7 @@ public class ClientReceive implements Runnable {
                     } 
                     toFile.flush();
                     int j = (int) ((totalBytes * 80.0)/length);
-                    System.out.printf("  Received: %3.2f", (double) (totalBytes * 100.0)/length);
+                    System.out.printf("  Received: %5.2f", (double) (totalBytes * 100.0)/length);
                     System.out.print("%  [");
                     for (int i = 0; i < 20; i++) {
                         if (i < j/4) {
