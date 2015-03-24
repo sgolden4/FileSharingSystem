@@ -98,6 +98,23 @@ public class ClientSend implements Runnable {
                         os.write(bytearray);
                         totalWrite += read;
                     }
+                    int j = (int) ((totalWrite * 80.0)/length);
+                    System.out.printf("  Sent: %5.2f", (double) (totalWrite * 100.0)/length);
+                    System.out.print("%  [");
+                    for (int i = 0; i < 20; i++) {
+                        if (i < j/4) {
+                            System.out.print("#");
+                        } else {
+                            int k = j%4;
+                            switch (k) {
+                            case 0: System.out.print("-"); break;
+                            case 1: System.out.print("\\"); break;
+                            case 2: System.out.print("|"); break;
+                            case 3: System.out.print("/"); break;
+                            }
+                        }
+                    }
+                    System.out.print("]\r");
                 }
                 System.out.println("  File " + FILE_FOLDER + filename
                         + " uploaded. Size: " + (totalWrite + offset));

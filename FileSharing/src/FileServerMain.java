@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -23,6 +24,10 @@ public class FileServerMain {
 	
 	private static void startServer() {
 		notifyServers();
+		File folder = new File(FILEPATH+myport);
+		if (!folder.exists()) {
+		    folder.mkdir();
+		}
 		System.out.println("Server ready, now listening for connections...");
 		while(serveractive){
 			try{

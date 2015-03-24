@@ -72,9 +72,11 @@ public class SWE622Server implements Runnable {
 		System.out.println("directory listing requested.");
 		File dir = new File(filepath);
 		File[] filelist = dir.listFiles();
-		for (File file : filelist) {
-		    if (file.isFile()) {
-		        pw.println(file.getName());
+		if (filelist != null) {
+		    for (File file : filelist) {
+		        if (file.isFile()) {
+		            pw.println(file.getName());
+		        }
 		    }
 		}
 		pw.println("done!");
