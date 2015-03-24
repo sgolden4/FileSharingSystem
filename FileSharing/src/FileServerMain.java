@@ -34,10 +34,6 @@ public class FileServerMain {
 	private static void startServer() {
 		checkDir(FILEPATH+myport);
 		notifyServers();
-		File folder = new File(FILEPATH+myport);
-		if (!folder.exists()) {
-		    folder.mkdir();
-		}
 		System.out.println("Server ready, now listening for connections...");
 		while(serveractive){
 			try{
