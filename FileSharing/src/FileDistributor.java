@@ -49,15 +49,19 @@ public class FileDistributor implements Runnable {
 				}
 				System.out.println("Attempting to send "+filename+" to server "+server.getPort()
 						+".  Length = "+length);
-				pw.println("ulserve "+filename+" "+length);
+				pw.println("ulserve "+filename+" "+length+" resume");
     			String instring = br.readLine();
+    			long startpoint = Long.parseLong(instring);
+    			instream.skip(startpoint);
+    			instring = br.readLine();
+    			System.out.println("Response received: "+instring);
     			if(!"ready".equals(instring)){
     				System.out.println("server didn't respond ready");
     				instream.close();
     				closeConnections();
     				return;
     			}
-				long remaining = length;
+				long remaining = length-startpoint;
 				while (remaining > 0) {
                     if (remaining < buffersize) {
                         packet = new byte[(int) remaining];

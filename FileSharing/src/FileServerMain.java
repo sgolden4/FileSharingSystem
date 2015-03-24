@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -13,15 +14,25 @@ import java.util.List;
 public class FileServerMain {
 	private static final String SERVER_ADDRESS = "127.0.0.1";
 	private static final int STARTING_PORT = 3210;
-	private static final String FILEPATH = "c:\\temp\\server";
+	private static final String FILEPATH = "server";
 	private static final int MAX_PORT = 3220;
 	private static int myport;
 	private static ServerSocket mysocket;
 	private static List<Integer> servers;
 	private static boolean serveractive = true;
 	
+	private static void checkDir(String directory) {
+        File dir = new File(directory);
+        if(!dir.exists()) {
+            if(!dir.mkdir()) {
+                System.out.println("Server directory does not exist and cannot be created... exiting!");
+                System.exit(1);
+            }
+        }
+	}
 	
 	private static void startServer() {
+		checkDir(FILEPATH+myport);
 		notifyServers();
 		System.out.println("Server ready, now listening for connections...");
 		while(serveractive){
@@ -134,4 +145,5 @@ public class FileServerMain {
 		findOtherServers();
 		startServer();
 	}
+
 }

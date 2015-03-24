@@ -68,6 +68,7 @@ public class ClientSend implements Runnable {
                 outToServer.writeBytes("ul " + filename + ' ' + myFile.length() + " resume\n");
 
                 offsetString = inFromServer.readLine();
+                System.out.println("Message from server: "+offsetString);
                 if (offsetString != null) {
                     try {
                         offset = Long.parseLong(offsetString);
