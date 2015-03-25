@@ -16,14 +16,19 @@ public class FileClientMain {
     public static boolean EXIT = false;  
     public static Scanner keyboard;
     public static String directory;
+    private static String[] serveraddresses;
 
     public static void main (String [] args) throws IOException {
-        if(args.length != 1) {
+        if(args.length < 1) {
             //System.out.println("Must name directory for downloaded/uploading files.");
         	directory = ".";
             //return;
-        } else
+        	serveraddresses = SERVER_ADDRESS;
+        } else{
         	directory = args[0];
+    		serveraddresses = new String[args.length-1];
+    		System.arraycopy(args, 1, serveraddresses, 0, args.length-1);        	
+        }
         File dir = new File(directory);
         if(!dir.exists()) {
             if(!dir.mkdir()) {
@@ -31,6 +36,8 @@ public class FileClientMain {
                 return;
             }
         }
+        
+
         
         keyboard = new Scanner(System.in);
         try {
@@ -107,10 +114,10 @@ public class FileClientMain {
         Socket[] sock = new Socket[3];
         for (int i = 0; i < SOCKET_PORT.length; i++ ) {
             try {
-                sock[i] = new Socket(SERVER_ADDRESS[i], SOCKET_PORT[i]);
-                System.out.printf("  Connecting to <%s> : %s:%d ...\n",SERVER_NAMES[i], SERVER_ADDRESS[i],SOCKET_PORT[i]); 
+                sock[i] = new Socket(serveraddresses[i], SOCKET_PORT[i]);
+                System.out.printf("  Connecting to <%s> : %s:%d ...\n",SERVER_NAMES[i], serveraddresses[i],SOCKET_PORT[i]); 
             } catch (SocketException se) {
-                System.out.printf("  Cannot Connect to <%s> : %s:%d\n",SERVER_NAMES[i], SERVER_ADDRESS[i],SOCKET_PORT[i]);
+                System.out.printf("  Cannot Connect to <%s> : %s:%d\n",SERVER_NAMES[i], serveraddresses[i],SOCKET_PORT[i]);
             } finally {
                 for(Socket s: sock) {
                     if (s != null) {
@@ -176,10 +183,10 @@ public class FileClientMain {
     private static Socket getSocket(String servname) {
         int socket = -1;
         String servaddr = null;
-        for(int i = 0; i < SERVER_NAMES.length; i++) {
-            if (SERVER_NAMES[i].equalsIgnoreCase(servname)) {
+        for(int i = 0; i < serveraddresses.length; i++) {
+            if (serveraddresses[i].equalsIgnoreCase(servname)) {
                 socket = SOCKET_PORT[i] ;
-                servaddr = SERVER_ADDRESS[i];
+                servaddr = serveraddresses[i];
                 break;
             }
         }

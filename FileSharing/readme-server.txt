@@ -2,16 +2,24 @@ SWE 622 File Server:
 
 To run the server:
 From the command line, in the directory containing FileServerMain.class, type:
-java FileServerMain
+
+java FileServerMain <server_address> <server_address> ...
+
+where each <server_address> is replaced by the address of another of these servers.
 
 When the server starts up, it starts checking the predetermined ports for other 
-servers of its type.  If we actually had multiple physical servers to test with,
-we would have stored ip addresses for the servers, and it would check those, but
-for simulation purposes, we just treat the preassigned ports as the server
-locations.  As soon as the server finds an open port in the range, it starts up
-a server socket on that port, and then continues checking the other ports for
-servers.  The server logs its status to the console, and when it has checked all
+servers of its type.  It checks each server given at the command line, as well
+as the local host (127.0.0.1).  As soon as the server finds an open port in the
+range, it starts up a server socket on that port, and then continues checking 
+the other ports for servers.  No two servers will take the same port.  
+The server logs its status to the console, and when it has checked all
 the ports, it will log that it is ready and start listening for connections.
+
+Note: the client was designed assuming the servers would all be on the local
+machine.  If a server is set up on a different machine, the client won't
+find it, but files sent from the client to a server on the local machine
+will get distributed to the other servers regardless of which machine
+they are on.
 
 The server accepts the following commands from the client:
 
@@ -52,4 +60,3 @@ there are many useful features we did not implement in the server.  E.g.:
 - Checking file modification datestamps for updating files.
 - Uploading existing files to a server that just connected.
 - Requiring some sort of authentication/authorization.
-
