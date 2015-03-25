@@ -13,10 +13,10 @@ When the client starts, it will display a welcome message followed by a list of 
 and descriptions of their function. This list can be accessed at any point with the 'help'
 command. Commands can be entered into a pseudo command-line prompt where lines start with
 "> ". The available commands are: dl, ul, listserv, listfiles, help, and exit. For 
-this project, we assume all servers are known by the client from startup. The listserv
-command checks each port from the list of known servers to see if it can establish
-a connection, and displays information accordingly. listfiles will list all the files
-stored at the specified server.
+this project, we assume all servers are known by the client from startup (either from
+command-line arguments or the default). The listserv command checks each port from the 
+list of known servers to see if it can establish a connection, and displays information 
+accordingly. The listfiles command will list all the files stored at the specified server.
 
 Downloading:
 
