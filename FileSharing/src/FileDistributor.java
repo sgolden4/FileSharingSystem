@@ -13,8 +13,8 @@ import java.net.UnknownHostException;
 
 
 public class FileDistributor implements Runnable {
-	private static final String SERVER_ADDRESS = "127.0.0.1";
-	String filename, filepath;
+	//private static final String SERVER_ADDRESS = "127.0.0.1";
+	String filename, filepath, serveraddress;
 	int serverport;
 	Socket server;
 	
@@ -25,10 +25,11 @@ public class FileDistributor implements Runnable {
 	PrintWriter pw;
 	
 	
-	FileDistributor(String filepath, String filename, int serverport){
+	FileDistributor(String filepath, String filename, String address, int serverport){
 		this.filename = filename;
 		this.filepath = filepath;
 		this.serverport = serverport;
+		serveraddress = address;
 	}
 
 	@Override
@@ -116,7 +117,7 @@ public class FileDistributor implements Runnable {
 	private boolean openConnection(){
 
 		try {
-			this.server = new Socket(SERVER_ADDRESS, serverport);
+			this.server = new Socket(serveraddress, serverport);
 			buffersize = server.getReceiveBufferSize();
 			packet = new byte[buffersize];
 			output = server.getOutputStream();

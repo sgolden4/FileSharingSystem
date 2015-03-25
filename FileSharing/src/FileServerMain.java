@@ -8,7 +8,9 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class FileServerMain {
@@ -18,7 +20,8 @@ public class FileServerMain {
 	private static final int MAX_PORT = 3220;
 	private static int myport;
 	private static ServerSocket mysocket;
-	private static List<Integer> servers;
+	private static List<Integer> serverports;
+	private static Map<Integer, String> servers;
 	private static boolean serveractive = true;
 	
 	private static void checkDir(String directory) {
@@ -50,10 +53,11 @@ public class FileServerMain {
 	}
 	
 	private static void notifyServers() {
-		int size = servers.size();
+		int size = serverports.size();
 		for(int i=0; i<size; i++){
 			try {
-				Socket socket = new Socket(SERVER_ADDRESS, servers.get(i));
+				int port = serverports.get(i);
+				Socket socket = new Socket(servers.get(port), port);
 				PrintWriter pw;
 				pw = new PrintWriter(socket.getOutputStream(), true);
 				pw.println("server "+myport);
@@ -65,9 +69,10 @@ public class FileServerMain {
 	}
 
 	public static void onUploadComplete(String filepath, String filename){
-		int size = servers.size();
+		int size = serverports.size();
 		for(int i=0; i<size; i++){
-			FileDistributor fd = new FileDistributor(filepath, filename, servers.get(i));
+			int port = serverports.get(i);
+			FileDistributor fd = new FileDistributor(filepath, filename, servers.get(port), port);
 			Thread thread = new Thread(fd);
 			thread.start();
 		}
@@ -89,37 +94,49 @@ public class FileServerMain {
 	}
 	
 
-	private static void findOtherServers() {
-
+	private static void findOtherServers(String[] args) {
+		String[] serverlist = new String[args.length+1];
+		serverlist[0] = SERVER_ADDRESS;
+		servers = new HashMap<Integer, String>();
+		System.arraycopy(args, 0, serverlist, 1, args.length);
 		myport = STARTING_PORT;
 		int portnum = myport;
-		if(servers == null)
-			servers = new ArrayList<Integer>();
+		if(serverports == null)
+			serverports = new ArrayList<Integer>();
 		boolean openportfound = false;
 		while(portnum <= MAX_PORT){
-			try{
-				Socket socket = new Socket(SERVER_ADDRESS, portnum);
-				if(verifyServer(socket)){
-					servers.add(portnum);
-					System.out.println("server found at port: "+portnum+", adding to server list");
-				}
-				portnum++;
-				socket.close();
-			} catch(IOException e){
-				if(!openportfound){
-					openportfound = true;
-					myport = portnum;
-					try {
-						mysocket = new ServerSocket(myport);
-						System.out.println("Server started on port: "+myport);
-					} catch (IOException e1) {
-						System.out.println("unable to start server on port "+myport+", closing server.");
-						e1.printStackTrace();
-						System.exit(1);
+			boolean portadded=false;
+			for(int i=0; i<serverlist.length; i++){
+				portadded = false;
+				try{
+					Socket socket = new Socket(serverlist[i], portnum);
+					if(verifyServer(socket)){
+						serverports.add(portnum);
+						servers.put(portnum, serverlist[i]);
+						System.out.println("server found at port: "+portnum+", adding to server list");
+						portnum++;
+						portadded=true;
+					}
+					socket.close();
+				} catch(IOException e){
+					if(!openportfound){
+						openportfound = true;
+						myport = portnum;
+						try {
+							mysocket = new ServerSocket(myport);
+							System.out.println("Server started on port: "+myport);
+							portnum++;
+							portadded=true;
+						} catch (IOException e1) {
+							System.out.println("unable to start server on port "+myport+", closing server.");
+							e1.printStackTrace();
+							System.exit(1);
+						}
 					}
 				}
-				portnum++;
 			}
+			if(!portadded)
+				portnum++;
 		}
 	}
 	
@@ -136,13 +153,14 @@ public class FileServerMain {
 		}
 	}
 
-	public static void addServer(int portnum) {
-		servers.add(portnum);
-		System.out.println("added server "+portnum+" to servers list.");		
+	public static void addServer(String address, int portnum) {
+		serverports.add(portnum);
+		servers.put(portnum, address);
+		System.out.println("added server "+address+":"+portnum+" to servers list.");		
 	}
 	
 	public static void main(String [] args){
-		findOtherServers();
+		findOtherServers(args);
 		startServer();
 	}
 

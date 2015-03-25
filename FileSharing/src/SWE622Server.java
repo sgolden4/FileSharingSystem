@@ -56,7 +56,7 @@ public class SWE622Server implements Runnable {
 					break;
 				case "verify": verify();
 					break;
-				case "server": FileServerMain.addServer(Integer.parseUnsignedInt(instringparts[1]));
+				case "server": FileServerMain.addServer(connection.getInetAddress().getHostAddress(), Integer.parseUnsignedInt(instringparts[1]));
 					break;
 				case "listfiles": listFiles();
 			}
