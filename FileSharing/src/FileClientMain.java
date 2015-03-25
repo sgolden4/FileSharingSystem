@@ -10,9 +10,10 @@ import java.util.Scanner;
 
 public class FileClientMain {
 
+	private final static int STARTING_PORT = 3210;
     public final static int[] SOCKET_PORT = {3210,3211,3212};
     public final static String[] SERVER_ADDRESS = {"127.0.0.1", "127.0.0.1", "127.0.0.1"};
-    public final static String[] SERVER_NAMES = {"Server1", "Server2", "Server3"};
+    public static String[] servernames;
     public static boolean EXIT = false;  
     public static Scanner keyboard;
     public static String directory;
@@ -32,6 +33,10 @@ public class FileClientMain {
 	    		serveraddresses = new String[args.length-1];
 	    		System.arraycopy(args, 1, serveraddresses, 0, args.length-1);
         	}
+        }
+        servernames = new String[serveraddresses.length];
+        for(int i=0; i<serveraddresses.length; i++){
+        	servernames[i] = "Server"+(i+1);
         }
         File dir = new File(directory);
         if(!dir.exists()) {
@@ -116,12 +121,12 @@ public class FileClientMain {
 
     public static void listserv() throws IOException {
         Socket[] sock = new Socket[3];
-        for (int i = 0; i < SOCKET_PORT.length; i++ ) {
+        for (int i = 0; i < serveraddresses.length; i++ ) {
             try {
-                sock[i] = new Socket(serveraddresses[i], SOCKET_PORT[i]);
-                System.out.printf("  Connecting to <%s> : %s:%d ...\n",SERVER_NAMES[i], serveraddresses[i],SOCKET_PORT[i]); 
+                sock[i] = new Socket(serveraddresses[i], STARTING_PORT+i);
+                System.out.printf("  Connecting to <%s> : %s:%d ...\n",servernames[i], serveraddresses[i],STARTING_PORT+i); 
             } catch (SocketException se) {
-                System.out.printf("  Cannot Connect to <%s> : %s:%d\n",SERVER_NAMES[i], serveraddresses[i],SOCKET_PORT[i]);
+                System.out.printf("  Cannot Connect to <%s> : %s:%d\n",servernames[i], serveraddresses[i],STARTING_PORT+i);
             } finally {
                 for(Socket s: sock) {
                     if (s != null) {
@@ -188,8 +193,8 @@ public class FileClientMain {
         int socket = -1;
         String servaddr = null;
         for(int i = 0; i < serveraddresses.length; i++) {
-            if (SERVER_NAMES[i].equalsIgnoreCase(servname)) {
-                socket = SOCKET_PORT[i] ;
+            if (servernames[i].equalsIgnoreCase(servname)) {
+                socket = STARTING_PORT+i ;
                 servaddr = serveraddresses[i];
                 break;
             }
