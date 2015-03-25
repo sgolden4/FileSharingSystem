@@ -95,6 +95,7 @@ public class FileServerMain {
 	
 
 	private static void findOtherServers(String[] args) {
+		mysocket = null;
 		String[] serverlist = new String[args.length+1];
 		serverlist[0] = SERVER_ADDRESS;
 		servers = new HashMap<Integer, String>();
@@ -107,9 +108,11 @@ public class FileServerMain {
 		while(portnum <= MAX_PORT){
 			boolean portadded=false;
 			for(int i=0; i<serverlist.length; i++){
+				System.out.println("cehcking for server at: "+serverlist[i]+":"+portnum);
 				portadded = false;
 				try{
 					Socket socket = new Socket(serverlist[i], portnum);
+					openportfound = false;
 					if(verifyServer(socket)){
 						serverports.add(portnum);
 						servers.put(portnum, serverlist[i]);
@@ -119,20 +122,20 @@ public class FileServerMain {
 					}
 					socket.close();
 				} catch(IOException e){
-					if(!openportfound){
-						openportfound = true;
-						myport = portnum;
-						try {
-							mysocket = new ServerSocket(myport);
-							System.out.println("Server started on port: "+myport);
-							portnum++;
-							portadded=true;
-						} catch (IOException e1) {
-							System.out.println("unable to start server on port "+myport+", closing server.");
-							e1.printStackTrace();
-							System.exit(1);
-						}
-					}
+					openportfound = true;
+				}
+			}
+			if(mysocket == null && openportfound){
+				myport = portnum;
+				try {
+					mysocket = new ServerSocket(myport);
+					System.out.println("Server started on port: "+myport);
+					portnum++;
+					portadded=true;
+				} catch (IOException e1) {
+					System.out.println("unable to start server on port "+myport+", closing server.");
+					e1.printStackTrace();
+					System.exit(1);
 				}
 			}
 			if(!portadded)
