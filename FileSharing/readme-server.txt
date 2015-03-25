@@ -1,8 +1,8 @@
 SWE 622 File Server:
 
 To run the server:
-From the command line, in the directory containing FileServerMain.class, type:
-java FileServerMain
+From the command line, in the directory containing Server.jar, type:
+java -jar Server.jar
 
 When the server starts up, it starts checking the predetermined ports for other 
 servers of its type.  If we actually had multiple physical servers to test with,
