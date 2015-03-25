@@ -188,7 +188,7 @@ public class FileClientMain {
         int socket = -1;
         String servaddr = null;
         for(int i = 0; i < serveraddresses.length; i++) {
-            if (serveraddresses[i].equalsIgnoreCase(servname)) {
+            if (SERVER_NAMES[i].equalsIgnoreCase(servname)) {
                 socket = SOCKET_PORT[i] ;
                 servaddr = serveraddresses[i];
                 break;
