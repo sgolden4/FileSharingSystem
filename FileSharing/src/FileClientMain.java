@@ -26,8 +26,12 @@ public class FileClientMain {
         	serveraddresses = SERVER_ADDRESS;
         } else{
         	directory = args[0];
-    		serveraddresses = new String[args.length-1];
-    		System.arraycopy(args, 1, serveraddresses, 0, args.length-1);        	
+        	if(args.length < 2)
+            	serveraddresses = SERVER_ADDRESS;
+        	else{
+	    		serveraddresses = new String[args.length-1];
+	    		System.arraycopy(args, 1, serveraddresses, 0, args.length-1);
+        	}
         }
         File dir = new File(directory);
         if(!dir.exists()) {

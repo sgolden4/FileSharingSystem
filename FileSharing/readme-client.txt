@@ -2,10 +2,12 @@ File Client:
 
 To run the client:
 From the command line, once in the directory where Client.jar resides type:
-java -jar Client.jar <directory_path>
+java -jar Client.jar <directory_path> <server 3210> <server 3211> <server 3212> ...
 
 <directory_path> denotes the path to the download/upload directory. If no argument is given,
-files are downloaded/uploaded to the current directory. 
+files are downloaded/uploaded to the current directory. If no servers are listed, it assumes
+three servers running on the local machine (127.0.0.1). If you wish to specify servers,
+you must also specify a directory.
 
 When the client starts, it will display a welcome message followed by a list of commands
 and descriptions of their function. This list can be accessed at any point with the 'help'
