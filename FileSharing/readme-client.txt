@@ -1,8 +1,8 @@
 File Client:
 
 To run the client:
-From the command line, once in the directory where FileClientMain.class resides type:
-java FileClientMain <directory_path>
+From the command line, once in the directory where Client.jar resides type:
+java -jar Client.jar <directory_path>
 
 <directory_path> denotes the path to the download/upload directory. If no argument is given,
 files are downloaded/uploaded to the current directory. 
